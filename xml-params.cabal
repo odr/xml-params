@@ -1,0 +1,53 @@
+name:               xml-params
+version:            0.1.0.0
+synopsis:           Support for special xml-elements to templating
+description:        Often we need xml with similar parts with a small differences. 
+                    This package provide small templating possibilities to compact coding such xml 
+                    defining something like table of parameters.
+license:            BSD3
+license-file:       LICENSE
+author:             Dmitry Olshansky
+maintainer:         OlshanskyDR@gmail.com
+category:           Xml, Conduit
+cabal-version:      >= 1.8
+build-type:         Simple
+stability:          Experimental
+
+-- Flag debug
+--        Default: False
+
+library
+--     if flag(debug)
+--         cpp-options: -DDEBUG
+
+    exposed-modules:    Text.ParamsL.ProcessParams
+                        Text.ParamsL.ParseList
+                        Text.ExprParser.ParseRownum
+   
+    ghc-options:   -Wall -O2
+
+    build-depends: base         >= 4        && < 5
+                , text          >= 0.11
+                , time          >= 1.4
+                , conduit       >= 1.0
+                , containers    >= 0.4
+                , transformers  >= 0.3
+                , parsec        >= 3.1
+                , xml-types     >= 0.3
+                , data-default  >= 0.5
+
+executable antiParamsL
+    main-is: AntiParamsL.hs
+    hs-source-dirs: Text/ParamsL 
+    build-depends: base         >= 4    && <5
+                 , xml-params
+                 , conduit      >= 1.0
+                 , xml-conduit  >= 1.1
+                 , xml-types    >= 0.3
+                 -- , bytestring   >= 0.10
+                 , data-default >= 0.5
+
+source-repository head
+  type:     git
+  location: git://github.com/odr/xml-params.git
+

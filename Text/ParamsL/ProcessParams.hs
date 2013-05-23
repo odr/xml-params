@@ -65,7 +65,7 @@ processParams pe0 ps0 =
                                 showContent (ContentText t) = T.unpack t
                                 showContent _ = ""
 
-                        notParamName = peIsParamsLAttr pe0 . fst -- (/="paramsL").nameLocalName.fst
+                        notParamName = not . peIsParamsLAttr pe0 . fst -- (/="paramsL").nameLocalName.fst
                         cleanBE
                             | isParamsL n   = []
                             | otherwise     = [EventBeginElement n $ filter notParamName ats]

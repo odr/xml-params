@@ -16,4 +16,5 @@ tags
 *.sav
 tags
 *~
-*/*.docx
+*.docx
+*.wiki

@@ -82,24 +82,23 @@ parseL = fmap (\res -> if null res then mempty else foldr1 (<+>) res) sumList --
     where
         sumList = parseProd `sepBy` char '+'
         parseProd = fmap mconcat $ parseL1 `sepBy` oneOf ";*"
-        readLex = readTuple $ fmap T.pack term
-        parseL1 = readLex >>= \ns -> char '?' >> readTuple readLex >>= \vs -> return (ParamsL ns $ map (take $ length ns) vs)
+        readLex = readTuple term
+        parseL1 = readLex >>= \ns -> char '?' >> readTuple readLex >>= \vs -> return (ParamsL (map trim ns) $ map (map trim . take (length ns)) vs)
+        trim = T.pack . trim' . trim'
+            where trim' = reverse . dropWhile isSpace
 
 readTuple :: ParserL a -> ParserL [a]
-readTuple p  = noSpaces $ char '[' >> (noSpaces p `sepBy` char ',') >>= \r -> char ']' >> return r
+readTuple p  = noSpaces $ char '[' >> (noSpaces p `sepBy` char ',') >>= \r -> char ']' >> return r --(map trim r)
     where
         noSpaces x = spaces >> x >>= \r -> spaces >> return r
         
 term :: ParserL String
 term = fmap concat $ many1 termSimple
     where
-        term0 = fmap trim $ many1 $ noneOf ",]{"
-        term1 = braces 
+        term0 = {- fmap trim $ -} many1 $ noneOf ",]{"
+        term1 = braces -- char '{' >> many (noneOf "}") >>= \res -> char '}' >> return ('{' : res ++ "}")
         term2 = char '`' >> many (noneOf "`") >>= \res -> char '`' >> return res
         termSimple = choice [term2, term1, term0]
-        trim = trim' . trim'
-            where
-                trim' = reverse . dropWhile isSpace
         
 braces :: ParserL String
 braces = char '{' >> fmap ('{':) go
@@ -137,12 +136,12 @@ fstParam f (ParamsL ns vss) t
             [1..] vss
     where cnt = length vss
 
--- | применение одного кортежа параметров
 class ApplyParam t where
+    -- | применение одного кортежа параметров
     appP :: 
-        t  -- значение, к которому применяется параметр
-        -> ExprParam -- дополнительные параметры - текущий номер параметра и общее количество параметров (obsolete?)
-        -> (T.Text->T.Text, ([T.Text], [T.Text])) -- (функция, помещающая название параметра в скобки; пара названия - значения)
+        t                                           -- | значение, к которому применяется параметр
+        -> ExprParam                                -- | дополнительные параметры - текущий номер параметра и общее количество параметров (obsolete?)
+        -> (T.Text->T.Text, ([T.Text], [T.Text]))   -- | (функция, помещающая название параметра в скобки; пара названия - значения)
         -> t
     
 defBound :: T.Text -> T.Text

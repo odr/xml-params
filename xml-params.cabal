@@ -1,5 +1,5 @@
 name:               xml-params
-version:            0.1.0.0
+version:            0.1.1.0
 synopsis:           Support for special xml-elements to templating
 description:        Often we need xml with similar parts with a small differences. 
                     This package provide small templating possibilities to compact coding such xml 

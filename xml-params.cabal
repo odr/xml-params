@@ -44,6 +44,8 @@ executable antiParamsL
                  , conduit      >= 1.0
                  , xml-conduit  >= 1.1
                  , xml-types    >= 0.3
+                 , conduit-extra
+                 , resourcet
                  -- , bytestring   >= 0.10
                  , data-default >= 0.5
 

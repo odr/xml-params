@@ -3,6 +3,7 @@
 module Main where
 
 -- import qualified Data.ByteString as BS
+import Control.Monad.Trans.Resource(runResourceT)
 import Data.Conduit
 import qualified Data.Conduit.Binary as CB
 import qualified Data.Conduit.List as CL

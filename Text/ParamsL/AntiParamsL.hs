@@ -8,13 +8,12 @@ import Data.Conduit
 import qualified Data.Conduit.Binary as CB
 import qualified Data.Conduit.List as CL
 import Data.String
-import Data.XML.Types
 import System.Environment(getArgs)
 import qualified Text.XML.Stream.Parse as XP
 import qualified Text.XML.Stream.Render as XR
 import Data.Default(def)
 
-import Text.ParamsL.ProcessParams(processParams, ParamsState(..), ParamsEnv(..))
+import Text.ParamsL.ProcessParams(processParams, ParamsState(..))
 
 main :: IO ()
 main = getArgs >>= doArgs

@@ -1,16 +1,17 @@
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE FlexibleContexts #-}
 -- {-# LANGUAGE QuasiQuotes #-}
 module Text.ParamsL.ParseList where
 
-import Control.Applicative((<$>),(<*>), pure)
+-- import Control.Applicative((<$>),(<*>), pure)
 import Control.Arrow(first, second, (***))
 import Control.Monad(liftM2, filterM)
 import Data.Char(isSpace)
 import Data.Function(on)
 import Data.List -- (foldl', (\\), intersectBy)
 import Data.Maybe(listToMaybe)
-import Data.Monoid(Monoid(..))
+-- import Data.Monoid(Monoid(..))
 import Data.Ord(comparing)
 import qualified Data.Text as T
 import Data.XML.Types
@@ -75,7 +76,7 @@ projectionParam ns0 (ParamsL ns vss)
 (*->) :: (Eq a, Ord a, Eq b) => ParamsL a b -> ParamsL a b -> ParamsL a b
 p1 *-> p2 = projectionParam (pNames p2) $ p1 `mappend` p2
 
-type ParserL = Parsec String Int 
+type ParserL = Parsec T.Text Int 
 
 parseL :: ParserL ParamsL'
 parseL = fmap (\res -> if null res then mempty else foldr1 (<+>) res) sumList -- парсится сумма произведений (например, A*B+A*D)
@@ -113,11 +114,11 @@ braces = char '{' >> fmap ('{':) go
                     modifyState (if c == '{' then (+1) else (subtract 1))
                     fmap ((res++[c])++) go
        
-getParamsL :: String -> ParamsL'
+getParamsL :: T.Text -> ParamsL'
 getParamsL s = p { pVals = concatMap (\p' -> concatMap (applyParam p') $ pVals p') $ paramsToList p }
     where
         p = case runParser parseL 0 "Params List Parser" s of
-            Left err -> error $ unlines ["Error in getParamsL. String to parse: ", s, "", "Error: ", show err]
+            Left err -> error $ unlines ["Error in getParamsL. String to parse: ", T.unpack s, "", "Error: ", show err]
             Right xs -> xs
     
 applyParam :: ApplyParam t => ParamsL' -> t -> [t]
@@ -176,21 +177,21 @@ instance ApplyParam ExternalID where
     appP (SystemID t) k              = SystemID          <$> appP t k
     appP (PublicID t1 t2) k          = PublicID          <$> appP t1 k <*> appP t2 k
 
-instance ApplyParam Instruction	where
+instance ApplyParam Instruction where
     appP (Instruction t d) k         = Instruction       <$> appP t k <*> appP d k
 
 instance ApplyParam Event where
-    appP EventBeginDocument	       _ = pure EventBeginDocument
+    appP EventBeginDocument        _ = pure EventBeginDocument
     appP EventEndDocument          _ = pure EventEndDocument
     appP (EventBeginDoctype t mid) k = EventBeginDoctype <$> appP t k <*> appP mid k
     appP EventEndDoctype           _ = pure EventEndDoctype
     appP (EventInstruction i)      k = EventInstruction  <$> appP i k
     appP (EventBeginElement n xs)  k = EventBeginElement <$> appP n k <*> appP xs  k
     appP (EventEndElement n)       k = EventEndElement   <$> appP n k
-    appP (EventContent c)	       k = EventContent      <$> appP c k
+    appP (EventContent c)          k = EventContent      <$> appP c k
     appP (EventComment t)          k = EventComment      <$> appP t k
     appP (EventCDATA t)            k = EventCDATA        <$> appP t k
 
 
-applyString :: String -> T.Text -> [T.Text]
+applyString :: T.Text -> T.Text -> [T.Text]
 applyString s = applyParam (getParamsL s)

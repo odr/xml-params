@@ -6,8 +6,6 @@ import Data.Conduit(Conduit, await, leftover, yield)
 import Data.Default(Default(..))
 import Data.List(foldl', transpose)
 import Data.Maybe(fromMaybe)
-import Data.Monoid(Monoid(..))
-import qualified Data.Text as T
 import Data.XML.Types(Event(..), Content(..), Name(..))
 -- import Debug.Trace
 
@@ -62,7 +60,7 @@ processParams pe0 ps0 =
                         getParams = reverseParams $ fromMaybe mempty $ fmap parseParams $ lookup "paramsL" ats
                             where
                                 parseParams = getParamsL . foldl' (\acc c -> acc `mappend` showContent c) ""
-                                showContent (ContentText t) = T.unpack t
+                                showContent (ContentText t) = t
                                 showContent _ = ""
 
                         notParamName = not . peIsParamsLAttr pe0 . fst -- (/="paramsL").nameLocalName.fst
